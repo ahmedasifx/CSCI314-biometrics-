@@ -6,7 +6,7 @@ import face_recognition
 image_1 = face_recognition.load_image_file("p3.jpg")
 image_1_face_encoding = face_recognition.face_encodings(image_1)[0]
 
-image_2 = face_recognition.load_image_file("p4.jpg")
+image_2 = face_recognition.load_image_file("p1.jpg")
 image_2_face_encoding = face_recognition.face_encodings(image_2)[0]
 
 # Create an array of known face encodings

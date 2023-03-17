@@ -1,0 +1,22 @@
+import sqlite3
+import face_recognition
+
+# Create a connection to the database
+conn = sqlite3.connect("users.db")
+
+# Create a table to store user data
+conn.execute('''CREATE TABLE USERS
+         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+         USERNAME TEXT NOT NULL,
+         PASSWORD TEXT NOT NULL,
+         FACE_ENCODING BLOB NOT NULL);''')
+
+# Insert a user into the database
+known_image = face_recognition.load_image_file("p4.jpg")
+known_face_encoding = face_recognition.face_encodings(known_image)[0]
+conn.execute("INSERT INTO USERS (USERNAME, PASSWORD, FACE_ENCODING) VALUES (?, ?, ?)",
+             ("user1", "password1", known_face_encoding))
+
+# Commit the changes and close the connection
+conn.commit()
+conn.close()
