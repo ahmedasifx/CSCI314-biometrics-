@@ -1,16 +1,13 @@
-import cv2
 import face_recognition
-
+import cv2
 class LoginSystem:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-        self.user_face = None
-        self.user_face_encoding = None
+    def __init__(self):
+        self.users = {}
 
-    def load_user_face(self, image_file):
-        self.user_face = face_recognition.load_image_file(image_file)
-        self.user_face_encoding = face_recognition.face_encodings(self.user_face)[0]
+    def add_user(self, username, password, image_file):
+        user_face = face_recognition.load_image_file(image_file)
+        user_face_encoding = face_recognition.face_encodings(user_face)[0]
+        self.users[username] = {'password': password, 'face_encoding': user_face_encoding}
 
     def capture_user_face(self):
         video_capture = cv2.VideoCapture(0)
@@ -22,10 +19,11 @@ class LoginSystem:
             face_encodings = face_recognition.face_encodings(frame, face_locations)
 
             for face_encoding in face_encodings:
-                matches = face_recognition.compare_faces([self.user_face_encoding], face_encoding)
+                for username, user_info in self.users.items():
+                    matches = face_recognition.compare_faces([user_info['face_encoding']], face_encoding)
 
-                if True in matches:
-                    return True
+                    if True in matches:
+                        return username
 
             cv2.imshow('Video', frame)
 
@@ -35,22 +33,23 @@ class LoginSystem:
         video_capture.release()
         cv2.destroyAllWindows()
 
-        return False
+        return None
 
-    def start_login(self, image_file):
-        self.load_user_face(image_file)
+    def start_login(self):
+        username = self.capture_user_face()
 
-        if self.capture_user_face():
-            entered_username = input("Enter your username: ")
+        if username is not None:
             entered_password = input("Enter your password: ")
 
-            if entered_username == self.username and entered_password == self.password:
+            if entered_password == self.users[username]['password']:
                 print('Login successful')
             else:
-                print('Incorrect username or password')
+                print('Incorrect password')
         else:
             print('Face not recognized')
 
 
-login_system = LoginSystem('johndoe', 'password123')
-login_system.start_login('p3.jpg')
+login_system = LoginSystem()
+login_system.add_user('johndoe', 'password123', 'p3.jpg')
+login_system.add_user('janedoe', 'password456', 'p1.jpg')
+login_system.start_login()
